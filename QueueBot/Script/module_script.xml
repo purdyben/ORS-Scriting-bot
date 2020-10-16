@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_script" default="compile.module.script">
+  <dirname property="module.script.basedir" file="${ant.file.module_script}"/>
+  
+  <property name="module.jdk.home.script" value="${jdk.home.1.8}"/>
+  <property name="module.jdk.bin.script" value="${jdk.bin.1.8}"/>
+  <property name="module.jdk.classpath.script" value="jdk.classpath.1.8"/>
+  
+  <property name="compiler.args.script" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="script.output.dir" value="${module.script.basedir}/../out/production/Script"/>
+  <property name="script.testoutput.dir" value="${module.script.basedir}/../out/test/Script"/>
+  
+  <path id="script.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="script.module.production.classpath">
+    <path refid="${module.jdk.classpath.script}"/>
+    <pathelement location="${basedir}/../../../../DreamBot/BotData/client.jar"/>
+  </path>
+  
+  <path id="script.runtime.production.module.classpath">
+    <pathelement location="${script.output.dir}"/>
+    <pathelement location="${basedir}/../../../../DreamBot/BotData/client.jar"/>
+  </path>
+  
+  <path id="script.module.classpath">
+    <path refid="${module.jdk.classpath.script}"/>
+    <pathelement location="${script.output.dir}"/>
+    <pathelement location="${basedir}/../../../../DreamBot/BotData/client.jar"/>
+  </path>
+  
+  <path id="script.runtime.module.classpath">
+    <pathelement location="${script.testoutput.dir}"/>
+    <pathelement location="${script.output.dir}"/>
+    <pathelement location="${basedir}/../../../../DreamBot/BotData/client.jar"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.script">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.script">
+    <patternset refid="excluded.from.module.script"/>
+  </patternset>
+  
+  <path id="script.module.sourcepath">
+    <dirset dir="${module.script.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.script" depends="compile.module.script.production,compile.module.script.tests" description="Compile module Script"/>
+  
+  <target name="compile.module.script.production" depends="register.custom.compilers" description="Compile module Script; production classes">
+    <mkdir dir="${script.output.dir}"/>
+    <javac2 destdir="${script.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.script}/javac">
+      <compilerarg line="${compiler.args.script}"/>
+      <bootclasspath refid="script.module.bootclasspath"/>
+      <classpath refid="script.module.production.classpath"/>
+      <src refid="script.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.script"/>
+    </javac2>
+    
+    <copy todir="${script.output.dir}">
+      <fileset dir="${module.script.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.script.tests" depends="register.custom.compilers,compile.module.script.production" description="compile module Script; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.script" description="cleanup module">
+    <delete dir="${script.output.dir}"/>
+    <delete dir="${script.testoutput.dir}"/>
+  </target>
+</project>

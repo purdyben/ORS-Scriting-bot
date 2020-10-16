@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_queuebot" default="compile.module.queuebot">
+  <dirname property="module.queuebot.basedir" file="${ant.file.module_queuebot}"/>
+  
+  <property name="module.jdk.home.queuebot" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.queuebot" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.queuebot" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.queuebot" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="queuebot.output.dir" value="${module.queuebot.basedir}/out/production/QueueBot"/>
+  <property name="queuebot.testoutput.dir" value="${module.queuebot.basedir}/out/test/QueueBot"/>
+  
+  <path id="queuebot.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="queuebot.module.production.classpath">
+    <path refid="${module.jdk.classpath.queuebot}"/>
+  </path>
+  
+  <path id="queuebot.runtime.production.module.classpath">
+    <pathelement location="${queuebot.output.dir}"/>
+  </path>
+  
+  <path id="queuebot.module.classpath">
+    <path refid="${module.jdk.classpath.queuebot}"/>
+    <pathelement location="${queuebot.output.dir}"/>
+  </path>
+  
+  <path id="queuebot.runtime.module.classpath">
+    <pathelement location="${queuebot.testoutput.dir}"/>
+    <pathelement location="${queuebot.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.queuebot">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.queuebot">
+    <patternset refid="excluded.from.module.queuebot"/>
+  </patternset>
+  
+  <path id="queuebot.module.sourcepath">
+    <dirset dir="${module.queuebot.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.queuebot" depends="compile.module.queuebot.production,compile.module.queuebot.tests" description="Compile module QueueBot"/>
+  
+  <target name="compile.module.queuebot.production" depends="register.custom.compilers" description="Compile module QueueBot; production classes">
+    <mkdir dir="${queuebot.output.dir}"/>
+    <javac2 destdir="${queuebot.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.queuebot}/javac">
+      <compilerarg line="${compiler.args.queuebot}"/>
+      <bootclasspath refid="queuebot.module.bootclasspath"/>
+      <classpath refid="queuebot.module.production.classpath"/>
+      <src refid="queuebot.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.queuebot"/>
+    </javac2>
+    
+    <copy todir="${queuebot.output.dir}">
+      <fileset dir="${module.queuebot.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.queuebot.tests" depends="register.custom.compilers,compile.module.queuebot.production" description="compile module QueueBot; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.queuebot" description="cleanup module">
+    <delete dir="${queuebot.output.dir}"/>
+    <delete dir="${queuebot.testoutput.dir}"/>
+  </target>
+</project>
